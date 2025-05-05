@@ -1,0 +1,16 @@
+version: '0.1'
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_DB=${LOCAL_DB_DBNAME}
+      - POSTGRES_USER=${LOCAL_DB_USER}
+      - POSTGRES_PASSWORD=${LOCAL_DB_PWD}
+    ports:
+      - "${LOCAL_DB_PORT}:${LOCAL_DB_PORT}"
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local
