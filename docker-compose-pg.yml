@@ -4,11 +4,12 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      - POSTGRES_DB=${LOCAL_DB_DBNAME}
-      - POSTGRES_USER=${LOCAL_DB_USER}
-      - POSTGRES_PASSWORD=${LOCAL_DB_PWD}
+      - PGDATABASE=${LOCAL_DB_DBNAME}
+      - PGUSER=${LOCAL_DB_USER}
+      - PGPASSWORD=${LOCAL_DB_PWD}
+
     ports:
-      - "${LOCAL_DB_PORT}:${LOCAL_DB_PORT}"
+      - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
 volumes:

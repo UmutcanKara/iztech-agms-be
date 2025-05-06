@@ -37,7 +37,7 @@ func (s *service) getUsersByQuery(ctx context.Context, q map[string][]string) ([
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	queryTemp := `SELECT id, user_name, created_at, updated_at, last_login FROM "USERS"`
+	queryTemp := `SELECT id, user_name FROM "USERS"`
 	queryTemp = fmt.Sprintf("%s WHERE ", queryTemp)
 	for key, values := range q {
 		for index, value := range values {
@@ -92,38 +92,40 @@ func (s *service) getUsers(ctx context.Context, req *GetUsersReq) ([]*GetUserRes
 	return res, nil
 }
 
-func (s *service) createUser(ctx context.Context, req *CreateUserReq) (*CreateUserRes, error) {
+func (s *service) createUsers(ctx context.Context, req *CreateUsersReq) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	hashedPwd, err := util.HashPassword(req.Password)
-	if err != nil {
-		return nil, err
-	}
-	user := &User{
-		UserName: req.UserName,
-		Password: hashedPwd,
+	users := make([]*CreateUserReq, len(req.Users))
+
+	for i, user := range req.Users {
+		hashedPwd, err := util.HashPassword(user.Password)
+		if err != nil {
+			return err
+		}
+		users[i] = &CreateUserReq{
+			UserName: user.UserName,
+			Password: hashedPwd,
+			Role:     user.Role,
+		}
 	}
 
-	r, err := s.Repository.createUser(ctx, user)
+	err := s.Repository.createUsers(ctx, users)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	res := &CreateUserRes{
-		ID:       strconv.Itoa(r.ID),
-		UserName: r.UserName,
-	}
-	return res, nil
+
+	return nil
 }
 
 func (s *service) register(ctx context.Context, user *CreateUserReq) (*CreateUserRes, error) {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	err := s.compareInputs(user.Password, user.PasswordConfirm)
-	if err != nil {
-		return nil, err
-	}
+	//err := s.compareInputs(user.Password, user.PasswordConfirm)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	hashedPwd, err := util.HashPassword(user.Password)
 	if err != nil {

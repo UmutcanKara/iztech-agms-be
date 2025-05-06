@@ -2,16 +2,14 @@ package auth
 
 import (
 	"context"
-	"database/sql"
 )
 
 type User struct {
-	ID              int            `json:"id"`
-	UserName        string         `json:"user_name"`
-	Password        string         `json:"password"`
-	PwdResetToken   sql.NullString `json:"pwd_reset_token"`
-	PwdResetExpires sql.NullTime   `json:"pwd_reset_expires"`
-	Session         string
+	ID       int    `json:"id"`
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+	Session  string
 }
 
 type Repository interface {
@@ -22,6 +20,7 @@ type Repository interface {
 
 	// POST Reqs
 	createUser(ctx context.Context, user *User) (*User, error)
+	createUsers(ctx context.Context, user []*CreateUserReq) error
 	setToken(ctx context.Context, uname string, token string) error
 
 	//// PUT Reqs
@@ -38,7 +37,7 @@ type Service interface {
 	getUserByUsername(ctx context.Context, username string) (*User, error)
 
 	// POST Reqs
-	createUser(ctx context.Context, user *CreateUserReq) (*CreateUserRes, error)
+	createUsers(ctx context.Context, user *CreateUsersReq) error
 	register(ctx context.Context, user *CreateUserReq) (*CreateUserRes, error)
 	login(ctx context.Context, u *LoginUserReq) (*LoginUserRes, error)
 
@@ -55,8 +54,8 @@ type Service interface {
 }
 
 type GetUsersReq struct {
-	UserName string `json:"user_name" db:"user_name"`
-	Token    string `json:"token" db:"token"`
+	UserName string `json:"user_name"`
+	Token    string `json:"token"`
 }
 
 type GetUserRes struct {
@@ -65,18 +64,22 @@ type GetUserRes struct {
 }
 
 type GetUserByUsernameReq struct {
-	UserName string `json:"user_name" db:"user_name"`
+	UserName string `json:"user_name"`
 }
 
 type CreateUserReq struct {
-	UserName        string `json:"user_name"`
-	Password        string `json:"password"`
-	PasswordConfirm string `json:"password_confirm"`
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 type CreateUserRes struct {
 	ID       string `json:"id"`
 	UserName string `json:"user_name"`
+}
+
+type CreateUsersReq struct {
+	Users []*CreateUserReq `json:"users"`
 }
 
 type LoginUserReq struct {

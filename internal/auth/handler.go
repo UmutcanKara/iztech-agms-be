@@ -88,10 +88,10 @@ func (h *Handler) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if body.Password != body.PasswordConfirm {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Passwords do not match"})
-		return
-	}
+	//if body.Password != body.PasswordConfirm {
+	//	c.JSON(http.StatusBadRequest, gin.H{"error": "Passwords do not match"})
+	//	return
+	//}
 
 	_, err := h.Service.register(ctx, &body)
 	if err != nil {
@@ -102,6 +102,21 @@ func (h *Handler) Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"success": true})
 }
+
+func (h *Handler) CreateUsers(c *gin.Context) {
+	ctx := c.Request.Context()
+	var body CreateUsersReq
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	if err := h.Service.createUsers(ctx, &body); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"success": true})
+}
+
 func (h *Handler) Login(c *gin.Context) {
 	ctx := c.Request.Context()
 	var body LoginUserReq
@@ -113,14 +128,14 @@ func (h *Handler) Login(c *gin.Context) {
 	res, err := h.Service.login(ctx, &body)
 	if err != nil {
 		// TODO: Match Errors if internal or wrong credential
-		println(err.Error())
-
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.SetCookie("token", res.Token, 0, "", "", true, true)
 	c.SetCookie("uname", res.UserName, 0, "", "", true, true)
+
+	res.Token = ""
 
 	c.JSON(http.StatusOK, gin.H{"user": res})
 }

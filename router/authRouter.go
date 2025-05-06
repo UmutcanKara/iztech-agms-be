@@ -51,12 +51,13 @@ func AuthRouter(blackListHosts map[string]struct{}) *gin.Engine {
 	{
 		publicGroup.POST("/login", handler.Login)
 		publicGroup.POST("/register", handler.Register)
+		publicGroup.POST("/create", handler.CreateUsers)
 	}
-	protectedGroup := r.Group("/protected")
+	protectedGroup := r.Group("/")
 	jwtMiddleware := middleware.NewJWTMiddleware()
 	{
 		protectedGroup.Use(jwtMiddleware.Authorize())
-		protectedGroup.GET("/", handler.GetUser)
+		protectedGroup.GET("/changePwd", handler.ChangePwd)
 		protectedGroup.POST("/logout", handler.Logout)
 	}
 
