@@ -37,10 +37,10 @@ goosereset:
 ## RUN APP
 build:
 	go mod tidy
-	sudo docker build -f Dockerfile.auth -t iztech-agms:latest .
+	sudo docker build -f Dockerfile.auth -t iztech-agms-be-auth:latest .
 
 run-auth:
-	sudo docker run -p 8080:8080 iztech-agms:latest
+	sudo docker run -p 8080:8080 iztech-agms-be-auth:latest
 
 
 ## UTILS
