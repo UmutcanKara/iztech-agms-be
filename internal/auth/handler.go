@@ -145,20 +145,11 @@ func (h *Handler) Login(c *gin.Context) {
 func (h *Handler) ChangePwd(c *gin.Context) {
 	ctx := c.Request.Context()
 	var body ChangePasswordReq
-	uname, err := c.Cookie("uname")
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-	token, err := c.Cookie("token")
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-	}
+	
 	if err = c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	body.UserName = uname
 
 	err = h.Service.changePassword(ctx, &body, token)
 	if err != nil {
@@ -176,4 +167,21 @@ func (h *Handler) ChangePwd(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})
 
+}
+
+func (h *Handler) SetPwdReset(c *gin.Context) {
+	ctx := c.Request.Context()
+	var uname string
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.Service.setPasswordReset(ctx, uname)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusNoContent)
+	return
 }

@@ -181,22 +181,8 @@ func (s *service) login(ctx context.Context, u *LoginUserReq) (*LoginUserRes, er
 func (s *service) changePassword(ctx context.Context, u *ChangePasswordReq, token string) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
-	if err := s.compareInputs(u.NewPassword, u.NewPasswordConfirm); err != nil {
-		return errors.New("incorrect")
-	}
-	if err := s.compareInputs(u.Password, u.NewPassword); err == nil {
-		return errors.New("invalid")
-	}
+	
 	user, err := s.Repository.getUserByUsername(ctx, u.UserName)
-	if err != nil {
-		return err
-	}
-	//println(user.Password, user.Session)
-	err = s.compareEncrypted(user.Password, u.Password)
-	if err != nil {
-		return err
-	}
-	err = s.compareEncrypted(token, user.Session)
 	if err != nil {
 		return err
 	}
@@ -207,6 +193,24 @@ func (s *service) changePassword(ctx context.Context, u *ChangePasswordReq, toke
 	u.Password = hashed
 
 	err = s.Repository.changePassword(ctx, u)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *service) setPasswordReset(ctx context.Context, uname string) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	_, err := s.Repository.getUserByUsername(ctx, uname)
+	if err != nil {
+		return err
+	}
+
+	code := RandStringBytes(6)
+
+	err = s.Repository.setPasswordReset(ctx, uname, code)
 	if err != nil {
 		return err
 	}
@@ -235,4 +239,14 @@ func (s *service) compareInputs(b string, a string) error {
 		return errors.New("inputs do not match")
 	}
 	return nil
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func RandStringBytes(n int) string {
+    b := make([]byte, n)
+    for i := range b {
+        b[i] = letterBytes[rand.Intn(len(letterBytes))]
+    }
+    return string(b)
 }

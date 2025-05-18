@@ -4,9 +4,9 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      - PGDATABASE=${LOCAL_DB_DBNAME}
-      - PGUSER=${LOCAL_DB_USER}
-      - PGPASSWORD=${LOCAL_DB_PWD}
+      POSTGRES_USER:${LOCAL_DB_USER}
+      POSTGRES_PASSWORD:${LOCAL_DB_PWD}
+      POSTGRES_DB:${LOCAL_DB_DBNAME}
 
     ports:
       - "5432:5432"

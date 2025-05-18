@@ -25,6 +25,7 @@ type Repository interface {
 
 	//// PUT Reqs
 	changePassword(ctx context.Context, user *ChangePasswordReq) error
+	setPasswordReset(ctx context.Context, uname string, code string) error
 	//
 	//// DELETE Reqs
 	//deleteUser(ctx context.Context, user *User) error
@@ -43,6 +44,7 @@ type Service interface {
 
 	//// PUT Reqs
 	changePassword(ctx context.Context, u *ChangePasswordReq, token string) error
+	setPasswordReset(ctx context.Context, uname string) error
 
 	//// DELETE Reqs
 	//deleteUser(ctx context.Context, u *DeleteUserReq) error
@@ -95,9 +97,8 @@ type LoginUserRes struct {
 
 type ChangePasswordReq struct {
 	UserName           string `json:"user_name"`
+	PwdResetCode       string `json:"reset_code"`
 	Password           string `json:"password"`
-	NewPassword        string `json:"new_password"`
-	NewPasswordConfirm string `json:"new_password_confirm"`
 }
 
 type ChangePasswordRes struct {
@@ -108,4 +109,9 @@ type DeleteUserReq struct {
 	UserName     string `json:"user_name"`
 	Password     string `json:"password"`
 	Confirmation string `json:"confirmation"`
+}
+
+type PwdResetReq struct {
+	UserName string `json:"user_name"`
+	PwdReset string `json:"pwd_reset"`
 }

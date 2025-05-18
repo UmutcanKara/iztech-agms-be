@@ -119,6 +119,15 @@ func (r repository) changePassword(ctx context.Context, u *ChangePasswordReq) er
 	return nil
 }
 
+func (r repository) setPasswordReset(ctx context.Context, uname string, code string) error {
+	query := `UPDATE "USERS" SET password_reset = $1 WHERE user_name = $2`
+	_, err := r.db.ExecContext(ctx, query, code, uname)
+	if err =! nil {
+		return err
+	}
+	return nil
+}
+
 func NewRepository(db DBTX) Repository {
 	return &repository{db: db}
 }
